@@ -1,2 +1,6 @@
 <h1>Example App: Home</h1>
-<h2>{{data}}</h2>
+{{#each data}}
+    <div class="button">
+        <a href="/facultyId-{{this.faculty.id}}">{{this.faculty.name}}</a>
+    </div>
+{{/each}}

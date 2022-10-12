@@ -9,41 +9,65 @@ app.engine('.hbs', engine({extname: '.hbs'}));
 app.set('view engine', '.hbs');
 app.set('views', './views');
 
-var Items = []
-var facultys = new Set()
-var groups = new Set()
-var days = new Set()
+
+var Items = [],
+    facultysId = new Set(),
+    facultys = [],
+    groupsId = new Set(),
+    groups = [],
+    semester = new Set(),
+    days = new Set(),
+    weekStart = new Set(),
+    weekEnd = new Set()
+
 
 fs.readFile("data.json", (err, data)=>{
   Items = JSON.parse(data)
-  console.log(Items[1000]);
+  // console.log(Items);
 
   Items.forEach(element => {
-    facultys.add(element.faculty.name)
-    groups.add(element.group.name)
+    facultysId.add(element.faculty.id)
+    groupsId.add(element.group.id)
+    semester.add(element.semester.code)
     days.add(new Date(element.lesson_date*1000).toLocaleDateString())
+    weekStart.add(new Date(element.weekStartTime*1000).toLocaleDateString())
+    weekEnd.add(new Date(element.weekEndTime*1000).toLocaleDateString())
   });
+  
+  facultysId.forEach(item=>{
+    facultys.push(Items.filter(el=>el.faculty.id==item)[0])
+  })
+
+  groupsId.forEach(item=>{
+    groups.push(Items.filter(el=>el.group.id==item)[0])
+  })
+
+  
 })
 
 
 app.get("/", (req, res) => {
-  
-  
-
-  // console.log(groups);
-  // console.log(facultys);
-  // console.log(Date(1664150400));
-  
-  // console.log("bajarildi");
-  // var txt=''
-  // facultys.forEach(el=>{
-  //   txt+=`<button>${el}</button>`
-  // })
-  // res.render('home',{
-  //   data:txt
-  // })
-  // console.lo);
+  res.render('home',{
+    data:facultys
+  })
 });
+
+app.get("/facultyId-:facultyId", (req, res)=>{
+  console.log(req.params.facultyId);
+  
+  var Groups = groups.filter(el=>el.faculty.id==req.params.facultyId)
+  console.log(Groups);
+  res.render("groups", {
+    facultyId:{id:req.params.facultyId},
+    data:Groups,
+  })
+})
+
+app.get("/facultyId-:facultyId/groupId-:groupId", (req, res)=>{
+  res.render("semester", {
+    data:semester
+  })
+})
 
 app.listen(3000, () => {
   console.log("port 3000");

@@ -2,6 +2,6 @@
 
 <div>
     {{#each data}}
-        <a href="">{{this}}</a><br>
+        <a href="/facultyId-{{lookup ../facultyId "id"}}/course-{{this.code}}">{{this.name}}</a><br>
     {{/each}}
 </div>

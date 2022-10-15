@@ -1,0 +1,27 @@
+
+<div class="container-fluit main">
+    <div class="sticky-top py-3 bg-white">
+        <h1>
+            Samarqand Davlat Unversiteti <span> Darslar Jadvali </span>
+        </h1>
+        <h2 class="secondary-title">Fakultetingizni tanlang</h2>
+    </div>
+    <div class="container select">
+        <div class="mt-5">
+            {{#if data}}
+            {{#each data}}
+            <a href="/facultyId-{{this.faculty.id}}" class="row item mb-4">
+                <div class="col-1 header d-flex align-items-center justify-content-center">
+                    <p class="m-0"></p>
+                </div>
+                <div class="col">
+                    <p class="m-0 ps-2">{{this.faculty.name}}</p>
+                </div>
+            </a>
+            {{/each}}
+            {{else}}
+            <h2>Ma'lumot yuq</h2>
+            {{/if}}
+        </div>
+    </div>
+</div>

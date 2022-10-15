@@ -1,7 +1,0 @@
-<div>groups</div>
-<div>
-    {{#each data}}
-    <div>{{@key}}</div>
-    <a href="/facultyId-{{lookup ../facultyId "id"}}/course-{{lookup ../courseCode "code"}}/groupId-{{this.group.id}}">{{this.group.name}}</a><br>
-    {{/each}}
-</div>

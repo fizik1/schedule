@@ -1,0 +1,128 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
+
+* {
+    list-style: none;
+    text-decoration: none !important;
+    box-sizing: border-box;
+
+}
+
+body {
+    font-size: 80px;
+    font-family: "Poppins", sans-serif;
+    font-weight: 400;
+    color: #525252;
+}
+
+a {
+    color: inherit;
+}
+
+.main {
+    background-image: url('../img/bg.png');
+    height: 100vh;
+    background-position: left bottom;
+    background-repeat: no-repeat;
+}
+
+/* home styles */
+
+.logo {
+    width: 300px;
+}
+
+.logo img {
+    width: 100%;
+}
+
+.main h1 {
+    font-size: 50px;
+    font-weight: 600;
+    text-align: center;
+    margin-top: 50px;
+}
+
+.main h1 span {
+    font-size: 80px;
+    display: block;
+    margin-top: 25px;
+}
+
+.main .btn-begin {
+    font-size: 60px;
+    display: inline-block;
+    font-weight: 600;
+    background-color: #00B9C2;
+    padding: 30px 130px;
+    margin-top: 50px;
+    border: none;
+    border-radius: 30px;
+    color: #fff;
+}
+
+.main .time-table {
+    margin-top: 100px;
+    width: 80%;
+    animation-name: timetableanim;
+    animation-duration: 2s;
+    animation-iteration-count: infinite;
+    animation-direction: alternate-reverse;
+    animation-timing-function: ease-in-out;
+}
+
+.time-table img {
+    width: 100%;
+}
+
+@keyframes timetableanim {
+    0% {
+        transform: translate(0, 0);
+    }
+
+    100% {
+        transform: translate(0px, 80px);
+    }
+}
+
+/* Facultets styles */
+
+.secondary-title {
+    font-size: 50px;
+    padding: 20px 0;
+    text-align: center;
+    color: #fff;
+    font-weight: 600;
+    background-color: #00B9C2;
+}
+
+.select .item {
+    height: 120px;
+}
+
+.item {
+    box-shadow: 5px 1px 10px rgba(0, 0, 0, 0.1);
+    font-weight: 600;
+    font-size: 40px;
+    background-color: #fff;
+
+}
+
+.header {
+    background-color: #00B9C2;
+    text-align: center;
+    font-weight: 500;
+    color: #fff;
+}
+
+.writing-mode {
+    writing-mode: vertical-lr;
+}
+
+.table {
+    font-size: 24px !important;
+    font-weight: 400;
+}
+
+.timetable .header {
+    transform: rotate(-180deg);
+}

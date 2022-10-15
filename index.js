@@ -3,12 +3,20 @@ const app = express();
 const { engine } = require("express-handlebars");
 const axios = require("axios");
 const fs = require("fs");
+const path = require("path");
+const bodyParser = require("body-parser");
 
+// Initialition handlebar
 app.engine(".hbs", engine({ extname: ".hbs" }));
 app.set("view engine", ".hbs");
 app.set("views", "./views");
 
+//Initialition static folder
+app.use(express.static("public"));
+app.use(bodyParser.json());
+
 var Items = [],
+  ItemsId = new Set(),
   facultysId = new Set(),
   facultys = [],
   groupsId = new Set(),
@@ -16,20 +24,14 @@ var Items = [],
   semesterId = new Set(),
   courses = [],
   days = new Set();
-// weekStart = new Set(),
-// weekEnd = new Set();
 
 fs.readFile("data.json", (err, data) => {
   Items = JSON.parse(data);
-  // console.log(Items);
 
   Items.forEach((element) => {
     facultysId.add(element.faculty.id);
     groupsId.add(element.group.id);
     semesterId.add(element.semester.code);
-    // days.add(new Date(element.lesson_date * 1000).toLocaleDateString());
-    // weekStart.add(new Date(element.weekStartTime * 1000).toLocaleDateString());
-    // weekEnd.add(new Date(element.weekEndTime * 1000).toLocaleDateString());
   });
 
   facultysId.forEach((item) => {
@@ -60,9 +62,14 @@ fs.readFile("data.json", (err, data) => {
   });
 });
 
+//home
+app.get("/", async (req, res) => {
+  res.render("home");
+});
+
 // Fakultet tanlash
-app.get("/", (req, res) => {
-  res.render("home", {
+app.get("/faculty", (req, res) => {
+  res.render("faculty", {
     data: facultys,
   });
 });
@@ -82,7 +89,7 @@ app.get("/facultyId-:facultyId/course-:courseCode", (req, res) => {
       el.faculty.id == req.params.facultyId &&
       el.semester.code == req.params.courseCode
   );
-  res.render("groups", {
+  res.render("group", {
     facultyId: { id: req.params.facultyId },
     courseCode: { code: req.params.courseCode },
     data: Groups,
@@ -93,10 +100,9 @@ app.get(
   "/facultyId-:facultyId/course-:courseCode/groupId-:groupId",
   (req, res) => {
     var { facultyId, courseCode, groupId } = req.params;
-    var today = new Date().toLocaleDateString()
+    var today = new Date().toLocaleDateString();
     var someOneItem = Items.filter(
-      (item) =>
-        new Date(item.lesson_date * 1000).toLocaleDateString() == today
+      (item) => new Date(item.lesson_date * 1000).toLocaleDateString() == today
     )[0];
     var weekStartTime = someOneItem?.weekStartTime;
     var weeklyData = Items.filter(
@@ -106,25 +112,70 @@ app.get(
         item.group.id == groupId &&
         item.weekStartTime == weekStartTime
     );
-    var monday = weeklyData.filter(item=>item.lesson_date==weekStartTime),
-        tuesday = weeklyData.filter(item=>item.lesson_date==weekStartTime+86400000),
-        wednesday = weeklyData.filter(item=>item.lesson_date==weekStartTime+2*86400000),
-        thursday = weeklyData.filter(item=>item.lesson_date==weekStartTime+3*86400000),
-        friday = weeklyData.filter(item=>item.lesson_date==weekStartTime+4*86400000),
-        saturday = weeklyData.filter(item=>item.lesson_date==weekStartTime+5*86400000);
-    days.clear();
-    console.log();
-    weeklyData.forEach((item) => days.add(item.lesson_date));
+    var mondayId = new Set(),
+      tuesdayId = new Set(),
+      wednesdayId = new Set(),
+      thursdayId = new Set(),
+      fridayId = new Set(),
+      saturdayId = new Set();
+    weeklyData.forEach((item) => {
+      switch (item.lesson_date) {
+        case weekStartTime:
+          mondayId.add(item.id);
+          break;
+        case weekStartTime + 86400:
+          tuesdayId.add(item.id);
+          break;
+        case weekStartTime + 86400 * 2:
+          wednesdayId.add(item.id);
+          break;
+        case weekStartTime + 86400 * 3:
+          thursdayId.add(item.id);
+          break;
+        case weekStartTime + 86400 * 4:
+          fridayId.add(item.id);
+          break;
+        case weekStartTime + 86400 * 5:
+          saturdayId.add(item.id);
+          break;
 
-    console.log(new Date(1665360000*1000+86400000));
+        default:
+          break;
+      }
+    });
+    var monday = [],
+        tuesday=[],
+        wednesday=[],
+        thursday=[],
+        friday=[],
+        saturday=[]
+    mondayId.forEach(id=>{
+      monday.push(weeklyData.find(item=>item.id==id))
+    })
+    tuesdayId.forEach(id=>{
+      tuesday.push(weeklyData.find(item=>item.id==id))
+    })
+    wednesdayId.forEach(id=>{
+      wednesday.push(weeklyData.find(item=>item.id==id))
+    })
+    thursdayId.forEach(id=>{
+      thursday.push(weeklyData.find(item=>item.id==id))
+    })
+    fridayId.forEach(id=>{
+      friday.push(weeklyData.find(item=>item.id==id))
+    })
+    saturdayId.forEach(id=>{
+      saturday.push(weeklyData.find(item=>item.id==id))
+    })
+
     res.render("jadval", {
       monday,
       tuesday,
       wednesday,
       thursday,
       friday,
-      saturday
-    })
+      saturday,
+    });
   }
 );
 
@@ -132,45 +183,58 @@ app.listen(3000, () => {
   console.log("port 3000");
 });
 
+// var pageCount = 2;
 // await axios.get("https://student.samdu.uz/rest/v1/data/schedule-list", {
-//   headers:{
-//     accept:"application/json",
-//     Authorization:"Bearer dpbJRafHgNO28kk30iU_0XdAgOziHWTo"
-//   },
-//   params:{
-//     year:2022,
-//     page:1
-//   }
-// }).then(javob=>{
-//   pageCount=javob.data.data.pagination.pageCount
-//   console.log(pageCount);
-// })
-// for(let i=1;i<=pageCount;i++){
-// await axios.get("https://student.samdu.uz/rest/v1/data/schedule-list", {
-//   headers:{
-//     accept:"application/json",
-//     Authorization:"Bearer dpbJRafHgNO28kk30iU_0XdAgOziHWTo"
-//   },
-//   params:{
-//     year:2022,
-//     page:i
-//   }
-// }).then(javob=>{
-//   // console.log(javob.data.data.items);
-//   console.log(i);
-//   javob.data.data.items.forEach(element => {
-//     Items.push(element)
+//     headers: {
+//       accept: "application/json",
+//       Authorization: "Bearer dpbJRafHgNO28kk30iU_0XdAgOziHWTo",
+//     },
+//     params: {
+//       year: 2022,
+//       page: 1,
+//     },
+//   })
+//   .then((javob) => {
+//     pageCount = javob.data.data.pagination.pageCount;
+//     console.log(javob.data.data.items.length);
 //   });
-// })
-
+// for (let i = 1; i <= pageCount; i++) {
+//   await axios
+//     .get("https://student.samdu.uz/rest/v1/data/schedule-list", {
+//       headers: {
+//         accept: "application/json",
+//         Authorization: "Bearer dpbJRafHgNO28kk30iU_0XdAgOziHWTo",
+//       },
+//       params: {
+//         year: 2022,
+//         page: i,
+//       },
+//     })
+//     .then((javob) => {
+//       // console.log(javob.data.data.items);
+//       console.log(i);
+//       javob.data.data.items.forEach((element) => {
+//         Items.push(element);
+//         // if (Items.length == 0) {
+//         //   ItemsId.add(element.id);
+//         //   Items.push(element);
+//         // } else {
+//         //   ItemsId.forEach((id) => {
+//         //     if (id != element.id) {
+//         //       ItemsId.add(element.id);
+//         //     }
+//         //   });
+//         // }
+//       });
+//     });
 // }
+// // console.log('id', ItemsId);
+// console.log('items', Items.length);
 
-// fs.writeFile("data.json", JSON.stringify(Items), (err) => {
-// if (err)
-//   console.log(err);
-// else {
-//   console.log("File written successfully\n");
-//   console.log("The written has the following contents:");
-//   console.log(fs.readFileSync("data.json", "utf8"));
-// }
+// await fs.writeFile("data.json", JSON.stringify(Items), (err) => {
+//   if (err) console.log(err);
+//   else {
+//     console.log("File written successfully\n");
+//     // console.log(fs.readFileSync("data.json", "utf8"));
+//   }
 // });
